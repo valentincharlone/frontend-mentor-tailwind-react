@@ -1,68 +1,122 @@
-import React from "react";
-import CossIcon from "./components/icons/CossIcon";
-import MoonIcon from "./components/icons/MoonIcon";
+import React, { useEffect, useState } from "react";
+import Actions from "./components/Actions";
+import Create from "./components/Create";
+import Filter from "./components/Filter";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import List from "./components/Lists";
+
+// const initialState = [
+//     {
+//         id: 1,
+//         title: "anashe",
+//         completed: true,
+//     },
+//     {
+//         id: 2,
+//         title: "idoo",
+//         completed: false,
+//     },
+//     {
+//         id: 3,
+//         title: "frodoo",
+//         completed: false,
+//     },
+//     {
+//         id: 4,
+//         title: "hasbula",
+//         completed: false,
+//     },
+// ];
+
+const initialStateLists = JSON.parse(localStorage.getItem('tasks'))|| []
 
 const App = () => {
+
+    const [lists, setLists] = useState(initialStateLists);
+
+    useEffect(() => {
+        localStorage.setItem('tasks', JSON.stringify(lists))
+    }, [lists])
+
+    const createItem = (title) => {
+        const newItem = {
+            id: Date.now(),
+            title,
+            completed: false,
+        };
+        setLists([...lists, newItem]);
+    };
+
+    const deleteItem = (id) => {
+        setLists(lists.filter((list) => list.id !== id));
+    };
+
+    const updateItem = (id) => {
+        setLists(
+            lists.map((list) =>
+                list.id === id
+                    ? {
+                          ...list,
+                          completed: !list.completed,
+                      }
+                    : list
+            )
+        );
+    };
+
+    const actionesItemsLeft = lists.filter((list) => !list.completed).length;
+
+    const clearCompleted = () => {
+        setLists(lists.filter((list) => !list.completed));
+    };
+
+    const [filter, setFilter] = useState("all");
+
+    const changeFilter = (filter) => setFilter(filter);
+
+    const filterLists = () => {
+        switch (filter) {
+            case "all":
+                return lists;
+            case "active":
+                return lists.filter((list) => !list.completed);
+            case "completed":
+                return lists.filter((list) => list.completed);
+            default:
+                return lists;
+        }
+    };
+
     return (
-        <div className="bg-[url('./assets/images/bg-mobile-light.jpg')] 
-          bg-contain bg-no-repeat bg-gray-300 min-h-screen">
-            <header className="container mx-auto px-4 pt-8">
-                <div className="flex justify-between">
-                    <h1 className="text-3xl font-bold uppercase tracking-[0.5em] text-white">
-                        TODO
-                    </h1>
-                    <button>
-                        <MoonIcon fill='#FFF' className='fill-red-500'/>
-                    </button>
-                </div>
-                <form className="bg-white rounded-md overflow-hidden py-4 flex gap-4 items-center px-4 mt-8">
-                    <span className="rounded-full border-2 w-7 h-7 inline-block"></span>
-                    <input type="text" className="w-full text-gray-500 outline-none" placeholder="create a something" />
-                </form>
-            </header>
+        <div
+            className="min-h-screen 
+             bg-gray-300 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat
+             dark:bg-gray-900 dark:bg-[url('./assets/images/bg-mobile-dark.jpg')] transition-all duration-1000
+             md:bg-[url('./assets/images/bg-desktop-light.jpg')]
+             md:dark:bg-[url('./assets/images/bg-desktop-dark.jpg')]
+             "
+        >
+            <Header />
 
-            <main className="container mx-auto px-4 mt-8 ">
+            <main className="container mx-auto mt-14 px-4 md:max-w-4xl ">
+                <Create createItem={createItem} />
 
-              <div className="bg-white rounded-md [&>article]:p-4">
+                <List
+                    lists={filterLists()}
+                    deleteItem={deleteItem}
+                    updateItem={updateItem}
+                />
 
-                <article className="flex gap-4  border-b-gray-300 border-b">
-                    <button className="flex-none rounded-full border-2 w-7 h-7 inline-block"></button>
-                    <p className="text-gray-600 grow">Complete online Javascript curse</p>
-                    <button className="flex-none">
-                        <CossIcon />
-                    </button>
-                </article>
-                <article className="flex gap-4  border-b-gray-300 border-b">
-                    <button className="flex-none rounded-full border-2 w-7 h-7 inline-block"></button>
-                    <p className="text-gray-600 grow">Complete online Javascript curse</p>
-                    <button className="flex-none">
-                        <CossIcon />
-                    </button>
-                </article>
-                <article className="flex gap-4  border-b-gray-300 border-b">
-                    <button className="flex-none rounded-full border-2 w-7 h-7 inline-block"></button>
-                    <p className="text-gray-600 grow">Complete online Javascript curse</p>
-                    <button className="flex-none">
-                        <CossIcon />
-                    </button>
-                </article>
+                <Actions
+                    actionesItemsLeft={actionesItemsLeft}
+                    clearCompleted={clearCompleted}
+                />
 
-                <section className="py-4 px-4 flex justify-between">
-                    <span className="text-gray-500">5 items left</span>
-                    <button className="text-gray-500">Clear Completed</button>
-                </section>
-              </div>
+                <Filter changeFilter={changeFilter} filter={filter} />
             </main>
 
-            <section className="container mx-auto px-4 mt-8">
-                <div className="bg-white rounded-md p-4 flex justify-center gap-6">
-                    <button className="hover:text-blue-600">All</button>
-                    <button className="hover:text-blue-600">Active</button>
-                    <button className="hover:text-blue-600">Completed</button>
-                </div>
-            </section>
-
-            <p className="text-center mt-8">Drag abd drop...</p>
+            <Footer />
         </div>
     );
 };
