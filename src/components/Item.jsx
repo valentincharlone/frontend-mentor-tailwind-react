@@ -2,10 +2,10 @@ import React from "react";
 import CheckIcon from "./icons/CheckIcon";
 import CossIcon from "./icons/CossIcon";
 
-const Item = ({ list, deleteItem , updateItem }) => {
+const Item = React.forwardRef(({ list, deleteItem , updateItem, ...props }, ref) => {
     return (
-        <>
-            <article className="flex gap-4  border-b border-b-gray-500 ">
+        
+            <article {...props} ref={ref} className="flex gap-4  border-b border-b-gray-500 ">
                 <button
                     className={`h-7 w-7 flex-none rounded-full border-2 ${
                         list.completed
@@ -27,8 +27,7 @@ const Item = ({ list, deleteItem , updateItem }) => {
                     <CossIcon />
                 </button>
             </article>
-        </>
-    );
-};
+    )
+})
 
 export default Item;

@@ -1,3 +1,4 @@
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
 import Actions from "./components/Actions";
 import Create from "./components/Create";
@@ -6,30 +7,15 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import List from "./components/Lists";
 
-// const initialState = [
-//     {
-//         id: 1,
-//         title: "anashe",
-//         completed: true,
-//     },
-//     {
-//         id: 2,
-//         title: "idoo",
-//         completed: false,
-//     },
-//     {
-//         id: 3,
-//         title: "frodoo",
-//         completed: false,
-//     },
-//     {
-//         id: 4,
-//         title: "hasbula",
-//         completed: false,
-//     },
-// ];
-
 const initialStateLists = JSON.parse(localStorage.getItem('tasks'))|| []
+
+const reorder = (list, startIndex, endIndex) => {
+    const result = [...list];
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+}
 
 const App = () => {
 
@@ -88,6 +74,16 @@ const App = () => {
         }
     };
 
+    const handleDragEnd = (result) =>{
+        const { destination, source } = result;
+        if (!destination) return;
+        if (source.index === destination.index && source.droppableId === destination.droppableId) return;
+
+        setLists((prevTasks) =>
+            reorder(prevTasks, source.index, destination.index)
+        );
+    }
+
     return (
         <div
             className="min-h-screen 
@@ -102,11 +98,13 @@ const App = () => {
             <main className="container mx-auto mt-14 px-4 md:max-w-4xl ">
                 <Create createItem={createItem} />
 
-                <List
-                    lists={filterLists()}
-                    deleteItem={deleteItem}
-                    updateItem={updateItem}
-                />
+                <DragDropContext onDragEnd={handleDragEnd}>
+                    <List
+                        lists={filterLists()}
+                        deleteItem={deleteItem}
+                        updateItem={updateItem}
+                    />
+                </DragDropContext>
 
                 <Actions
                     actionesItemsLeft={actionesItemsLeft}
