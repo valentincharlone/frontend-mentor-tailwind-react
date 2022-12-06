@@ -7,7 +7,7 @@ const Actions = ({ actionesItemsLeft, clearCompleted }) => {
                 {actionesItemsLeft} items left
             </span>
             <button className="text-gray-500 dark:text-gray-300" onClick={clearCompleted}>
-                Clear Completed
+                Clear completed
             </button>
         </section>
     );
